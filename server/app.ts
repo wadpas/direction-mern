@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './db/connect.js'
 import products from './routes/products.js'
+import auth from './routes/auth.js'
 import notFound from './middleware/not-found.js'
 import errorHandler from './middleware/error-handler.js'
 
@@ -15,9 +16,10 @@ app.use(express.json())
 app.use(cors())
 
 // routes
-app.use('/api/products', products as any)
+app.use('/api/products', products)
+app.use('/api/auth', auth)
 app.use(notFound)
-app.use(errorHandler)
+app.use(errorHandler as any)
 
 const port = process.env.PORT || 3000
 const start = async () => {
