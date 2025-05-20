@@ -1,12 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
-import CustomAPIError from '../errors/custom-error.js'
+import jwt from 'jsonwebtoken'
+import BadRequestError from '../errors/bad-request.js'
 
-export const login = (req: Request, res: Response) => {
-  const { username, password } = req.body
+export const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body
 
-  if (!username || !password) {
-    throw new CustomAPIError('Please provide email and password', 400)
+  if (!email || !password) {
+    throw new BadRequestError('Please provide email and password')
   }
 
-  res.status(200).json({ username, password })
+  const token = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+    expiresIn: '30d',
+  })
+
+  res.status(200).json(token)
 }
