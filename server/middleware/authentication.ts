@@ -1,23 +1,20 @@
-import { Request, Response, NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
+import { Response, NextFunction } from 'express'
 import UnauthenticatedError from '../errors/unauthenticated.js'
+import { isTokenValid } from '../utils/jwt.js'
 
 const authMiddleware = async (req: any, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization
+  const token = req.signedCookies.token
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new UnauthenticatedError('No token provided')
+  if (!token) {
+    console.log('token')
+    throw new UnauthenticatedError('Authentication Invalid')
   }
 
-  const token = authHeader.split(' ')[1]
-
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET as string)
-    console.log(req.user)
-
+    req.user = isTokenValid(token) as any
     next()
   } catch (error) {
-    throw new UnauthenticatedError('Not authorized to access this route')
+    throw new UnauthenticatedError('Authentication Invalid')
   }
 }
 
