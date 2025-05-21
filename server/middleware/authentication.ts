@@ -12,9 +12,7 @@ const authMiddleware = async (req: any, res: Response, next: NextFunction) => {
   const token = authHeader.split(' ')[1]
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string)
-    const { email } = decoded as { email: string }
-    req.user = { email }
+    req.user = jwt.verify(token, process.env.JWT_SECRET as string)
     console.log(req.user)
 
     next()
