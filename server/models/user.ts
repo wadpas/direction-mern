@@ -1,12 +1,6 @@
-import mongoose, { model, Document } from 'mongoose'
+import mongoose from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-
-interface IUser extends Document {
-  createJWT(): string
-  comparePassword(candidatePassword: string): Promise<boolean>
-}
 
 const UserSchema = new mongoose.Schema(
   {
@@ -44,21 +38,14 @@ const UserSchema = new mongoose.Schema(
 )
 
 UserSchema.pre('save', async function () {
+  if (!this.isModified('password')) return
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
 })
-
-UserSchema.methods.createJWT = function () {
-  return jwt.sign({ userId: this._id, name: this.name }, process.env.JWT_SECRET as string, {
-    expiresIn: '30d',
-  })
-}
 
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   const isMatch = await bcrypt.compare(candidatePassword, this.password)
   return isMatch
 }
 
-const User = model<IUser>('User', UserSchema)
-
-export default User
+export default mongoose.model('User', UserSchema)

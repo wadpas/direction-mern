@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import StatusCodes from 'http-status-codes'
 import User from '../models/user.js'
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js'
-import { createTokenUser, attachCookiesToResponse } from '../utils/jwt.js'
+import { createTokenUser, attachCookiesToResponse } from '../utils/auth.js'
 
 export const register = async (req: Request, res: Response) => {
   const user = await User.create(req.body)

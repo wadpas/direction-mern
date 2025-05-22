@@ -4,11 +4,12 @@ import morgan from 'morgan'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './db/connect.js'
-import products from './routes/products.js'
 import auth from './routes/auth.js'
+import products from './routes/products.js'
+import users from './routes/users.js'
 import notFound from './middleware/not-found.js'
 import errorHandler from './middleware/error-handler.js'
-import authMiddleware from './middleware/authentication.js'
+import { authentication } from './middleware/auth.js'
 import cookieParser from 'cookie-parser'
 
 dotenv.config()
@@ -22,7 +23,8 @@ app.use(cors())
 
 // routes
 app.use('/api/auth', auth)
-app.use('/api/products', authMiddleware, products)
+app.use('/api/products', authentication, products)
+app.use('/api/users', authentication, users)
 app.use(notFound)
 app.use(errorHandler as any)
 
