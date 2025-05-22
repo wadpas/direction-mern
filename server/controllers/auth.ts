@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import StatusCodes from 'http-status-codes'
 import User from '../models/user.js'
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js'
 import { createTokenUser, attachCookiesToResponse } from '../utils/auth.js'
@@ -8,7 +7,7 @@ export const register = async (req: Request, res: Response) => {
   const user = await User.create(req.body)
   const tokenUser = createTokenUser(user)
   attachCookiesToResponse(res, tokenUser)
-  res.status(StatusCodes.CREATED).json({ tokenUser })
+  res.status(201).json({ tokenUser })
 }
 
 export const login = async (req: Request, res: Response) => {
@@ -30,7 +29,7 @@ export const login = async (req: Request, res: Response) => {
 
   const tokenUser = createTokenUser(user)
   attachCookiesToResponse(res, tokenUser)
-  res.status(StatusCodes.OK).json({ user: tokenUser })
+  res.status(200).json({ user: tokenUser })
 }
 
 export const logout = async (req: Request, res: Response) => {
@@ -38,5 +37,5 @@ export const logout = async (req: Request, res: Response) => {
     httpOnly: true,
     expires: new Date(Date.now() + 1000),
   })
-  res.status(StatusCodes.OK).json({ msg: 'user logged out!' })
+  res.status(200).json({ msg: 'user logged out!' })
 }

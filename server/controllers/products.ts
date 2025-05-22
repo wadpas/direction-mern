@@ -1,5 +1,10 @@
-import { Request, Response } from 'express'
 import Product from '../models/product.js'
+import { Request, Response } from 'express'
+import { BadRequestError } from '../errors/index.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export const getProducts = async (req: Request, res: Response): Promise<any> => {
   const { featured, company, name, sort, fields, numericFilters } = req.query
@@ -74,7 +79,8 @@ export const getProducts = async (req: Request, res: Response): Promise<any> => 
   res.status(200).json({ products })
 }
 
-export const createProduct = async (req: Request, res: Response): Promise<any> => {
+export const createProduct = async (req: any, res: Response): Promise<any> => {
+  req.body.user = req.user.userId
   const product = await Product.create(req.body)
   res.status(201).json({ product })
 }
@@ -108,11 +114,33 @@ export const updateProduct = async (req: Request, res: Response): Promise<any> =
 
 export const deleteProduct = async (req: Request, res: Response): Promise<any> => {
   const productId = req.params.id
-  const product = await Product.findOneAndDelete({ _id: productId })
+  const product = await Product.findOne({ _id: productId })
 
   if (!product) {
     return res.status(404).json({ error: `Product with id ${productId} not found` })
   }
 
+  await product.deleteOne()
   res.status(200).json({ product })
+}
+
+export const uploadImage = async (req: any, res: Response): Promise<any> => {
+  if (!req.files) {
+    throw new BadRequestError('No File Uploaded')
+  }
+  const productImage = req.files.image
+
+  if (!productImage.mimetype.startsWith('image')) {
+    throw new BadRequestError('Please Upload Image')
+  }
+
+  const maxSize = 1024 * 1024
+
+  if (productImage.size > maxSize) {
+    throw new BadRequestError('Please upload image smaller than 1MB')
+  }
+
+  const imagePath = path.join(__dirname, '../public/uploads/' + `${productImage.name}`)
+  await productImage.mv(imagePath)
+  res.status(200).json({ image: `/uploads/${productImage.name}` })
 }

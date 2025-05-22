@@ -1,12 +1,11 @@
 import { Request, Response } from 'express'
 import User from '../models/user.js'
-import StatusCodes from 'http-status-codes'
 import { BadRequestError, NotFoundError, UnauthenticatedError } from '../errors/index.js'
 import { attachCookiesToResponse, createTokenUser, checkPermissions } from '../utils/auth.js'
 
 export const getUsers = async (req: Request, res: Response): Promise<any> => {
   const users = await User.find({ role: 'user' }).select('-password')
-  res.status(StatusCodes.OK).json({ users })
+  res.status(200).json({ users })
 }
 
 export const getUser = async (req: any, res: Response): Promise<any> => {
@@ -15,11 +14,11 @@ export const getUser = async (req: any, res: Response): Promise<any> => {
     throw new NotFoundError(`No user with id ${req.params.id}`)
   }
   checkPermissions(req.user, user._id)
-  res.status(StatusCodes.OK).json({ user })
+  res.status(200).json({ user })
 }
 
 export const getCurrentUser = async (req: any, res: Response): Promise<any> => {
-  res.status(StatusCodes.OK).json({ user: req.user })
+  res.status(200).json({ user: req.user })
 }
 
 export const updateUser = async (req: any, res: Response): Promise<any> => {
@@ -39,7 +38,7 @@ export const updateUser = async (req: any, res: Response): Promise<any> => {
   await user.save()
   const tokenUser = createTokenUser(user)
   attachCookiesToResponse(res, tokenUser)
-  res.status(StatusCodes.OK).json(tokenUser)
+  res.status(200).json(tokenUser)
 }
 
 export const updateUserPassword = async (req: any, res: Response): Promise<any> => {
@@ -62,5 +61,5 @@ export const updateUserPassword = async (req: any, res: Response): Promise<any> 
   user.password = newPassword
 
   await user.save()
-  res.status(StatusCodes.OK).json({ msg: 'Success! Password Updated.' })
+  res.status(200).json({ msg: 'Success! Password Updated.' })
 }
