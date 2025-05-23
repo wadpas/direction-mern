@@ -6,6 +6,7 @@ import cors from 'cors'
 import connectDB from './db/connect.js'
 import auth from './routes/auth.js'
 import products from './routes/products.js'
+import reviews from './routes/reviews.js'
 import users from './routes/users.js'
 import notFound from './middleware/not-found.js'
 import errorHandler from './middleware/error-handler.js'
@@ -27,6 +28,7 @@ app.use(fileUpload())
 app.use('/api/auth', auth)
 app.use('/api/users', users)
 app.use('/api/products', products)
+app.use('/api/reviews', reviews)
 app.use(notFound)
 app.use(errorHandler as any)
 
