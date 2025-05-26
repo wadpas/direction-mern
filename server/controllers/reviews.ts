@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import Product from '../models/product.js'
 import Review from '../models/review.js'
-import { BadRequestError, NotFoundError } from '../errors/index.js'
 import { checkPermissions } from '../utils/auth.js'
+import APIError from '../utils/api-error.js'
 
 export const getReviews = async (req: any, res: Response): Promise<any> => {
   const reviews = await Review.find({}).populate({
@@ -19,7 +19,7 @@ export const getReview = async (req: Request, res: Response): Promise<any> => {
   const review = await Review.findOne({ _id: reviewId })
 
   if (!review) {
-    throw new NotFoundError(`No review with id ${reviewId}`)
+    throw new APIError(`No review with id ${reviewId}`, 404)
   }
 
   res.status(200).json({ review })
@@ -31,7 +31,7 @@ export const createReview = async (req: any, res: Response): Promise<any> => {
   const isValidProduct = await Product.findOne({ _id: productId })
 
   if (!isValidProduct) {
-    throw new NotFoundError(`No product with id : ${productId}`)
+    throw new APIError(`No product with id : ${productId}`, 404)
   }
 
   const alreadySubmitted = await Review.findOne({
@@ -40,7 +40,7 @@ export const createReview = async (req: any, res: Response): Promise<any> => {
   })
 
   if (alreadySubmitted) {
-    throw new BadRequestError('Already submitted review for this product')
+    throw new APIError('Already submitted review for this product', 400)
   }
 
   req.body.user = req.user.userId
@@ -55,7 +55,7 @@ export const updateReview = async (req: any, res: Response): Promise<any> => {
   const review = await Review.findOne({ _id: reviewId })
 
   if (!review) {
-    throw new NotFoundError(`No review with id ${reviewId}`)
+    throw new APIError(`No review with id ${reviewId}`, 404)
   }
 
   checkPermissions(req.user, review.user)
@@ -74,7 +74,7 @@ export const deleteReview = async (req: any, res: Response): Promise<any> => {
   const review = await Review.findOne({ _id: reviewId })
 
   if (!review) {
-    throw new NotFoundError(`No review with id ${reviewId}`)
+    throw new APIError(`No review with id ${reviewId}`, 404)
   }
 
   checkPermissions(req.user, review.user)

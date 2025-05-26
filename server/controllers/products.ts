@@ -1,8 +1,8 @@
 import Product from '../models/product.js'
 import { Request, Response } from 'express'
-import { BadRequestError } from '../errors/index.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import APIError from '../utils/api-error.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -126,18 +126,18 @@ export const deleteProduct = async (req: Request, res: Response): Promise<any> =
 
 export const uploadImage = async (req: any, res: Response): Promise<any> => {
   if (!req.files) {
-    throw new BadRequestError('No File Uploaded')
+    throw new APIError('No File Uploaded', 400)
   }
   const productImage = req.files.image
 
   if (!productImage.mimetype.startsWith('image')) {
-    throw new BadRequestError('Please Upload Image')
+    throw new APIError('Please Upload Image', 400)
   }
 
   const maxSize = 1024 * 1024
 
   if (productImage.size > maxSize) {
-    throw new BadRequestError('Please upload image smaller than 1MB')
+    throw new APIError('Please upload image smaller than 1MB', 400)
   }
 
   const imagePath = path.join(__dirname, '../public/uploads/' + `${productImage.name}`)
